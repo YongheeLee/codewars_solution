@@ -1,0 +1,101 @@
+//https://www.codewars.com/kata/53e57dada0cb0400ba000688/csharp
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Codewars
+{
+    public class AlphabeticAnagrams
+    {
+        private static long factorial(long num)
+        {
+            if (num == 1 || num == 0)
+                return 1;
+            else
+                return factorial(num - 1) * num;
+        }
+
+        private static long calcCombination(string subValue)
+        {
+            string order = new string(subValue.OrderBy(s => s).ToArray());
+            int totalLen = order.Count();
+            long total = factorial((long)totalLen);
+
+            Dictionary<char, int> charCnt = new Dictionary<char, int>();
+
+            for(int i=0;i< totalLen;++i)
+            {
+                if (charCnt.ContainsKey(order[i]) == false)
+                    charCnt.Add(order[i], 0);
+
+                ++charCnt[order[i]];
+            }
+
+            long sub = 1;
+            foreach(var item in charCnt)
+            {
+                sub *= factorial(item.Value);
+            }
+
+            return total / sub;
+        }
+
+        public static long ListPosition(string value)
+        {
+            string src = value;
+            string rank0 = new string(value.OrderBy(s => s).ToArray());
+
+            if (src.Equals(rank0))
+                return 1;
+
+            int len = value.Length;
+
+            long rank = 1;
+            string procStr = rank0;
+
+            for (int i = 0; i < len; ++i)
+            {
+                if (src[i] == procStr[i])
+                    continue;
+
+                int idx = i + procStr.Substring(i, procStr.Length - i).IndexOf(src[i]);
+
+                string removed, pre, post, sel;
+
+                char ch = rank0[i];
+                for (int s = i; s < idx; ++s)
+                {
+                    if (rank0[s] == rank0[s + 1])
+                    {
+                        continue;
+                    }
+
+                    removed = rank0.Remove(s, 1);
+                    pre = rank0.Substring(0, i);
+                    post = removed.Substring(i, removed.Length - i);
+                    sel = rank0[s].ToString();
+
+                    procStr = pre + sel + post;
+
+                    long subComNum = calcCombination(post);
+                    rank += subComNum;
+                }
+
+                removed = rank0.Remove(idx, 1);
+
+                pre = rank0.Substring(0, i);
+                post = removed.Substring(i, removed.Length - i);
+
+                sel = rank0[idx].ToString();
+                procStr = pre + sel + post;
+                rank0 = procStr;
+            }
+
+
+            return rank;
+        }
+    }
+}
